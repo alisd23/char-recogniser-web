@@ -1,0 +1,12 @@
+package: letter-recogniser
+import:
+- package: github.com/harrydb/go
+  subpackages:
+  - img/grayscale
+- package: github.com/mitchellh/go-homedir
+- package: github.com/nfnt/resize
+- package: github.com/rs/cors
+- package: github.com/spf13/cobra
+- package: github.com/spf13/viper
+- package: github.com/plimble/ace
+  version: master
