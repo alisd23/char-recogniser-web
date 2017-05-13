@@ -13,7 +13,7 @@
 
 package main
 
-import "letter-recogniser/cmd"
+import "letter-recogniser-go/cmd"
 
 func main() {
 	cmd.Execute()
