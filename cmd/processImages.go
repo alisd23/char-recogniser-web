@@ -14,10 +14,20 @@
 package cmd
 
 import (
+	"bytes"
 	"fmt"
+	"image/png"
+	"io/ioutil"
+	"letter-recogniser-go/src/server"
+	"os"
+	"path/filepath"
+	"strconv"
 
 	"github.com/spf13/cobra"
 )
+
+var sourceDir string
+var outputDir string
 
 // processImagesCmd represents the processImages command
 var processImagesCmd = &cobra.Command{
@@ -28,8 +38,74 @@ var processImagesCmd = &cobra.Command{
 		// TODO - Probably want to save these images in []byte form to mongdb/cassandra
 		// or something - so it's easy to retrieve later
 		// NOTE - Need to MAKE SURE images are not saved to DB more than once!
-		fmt.Println("processImages called")
+		fmt.Println("[PROCESSING IMAGES] - Directory: ", sourceDir)
+		runTask()
 	},
+}
+
+func processImage(filePath, character, name string) {
+	imgBytes, err := ioutil.ReadFile(filePath)
+
+	if err != nil {
+		fmt.Printf("[READ IMAGE] %v/%v - Error: %v\n", character, name, err)
+		return
+	}
+
+	reader := bytes.NewReader(imgBytes)
+	img, err := png.Decode(reader)
+
+	if err != nil {
+		fmt.Printf("[DECODE IMAGE] %v/%v - Error: %v\n", character, name, err)
+		return
+	}
+
+	// Normalise image
+	normalisedImg := server.NormaliseImage(img)
+	outputPath, _ := filepath.Abs(filepath.Join("training-set", character, name+".png"))
+
+	// Create directory if necessary - then save image
+	os.Mkdir(filepath.Dir(outputPath), 0777)
+	err = server.SaveImage(normalisedImg, outputPath)
+
+	if err != nil {
+		fmt.Printf("[SAVE IMAGE] %v/%v - Error: %v\n", character, name, err)
+	} else {
+		fmt.Printf("[IMAGE PROCESSED] %v\n", outputPath)
+	}
+}
+
+func runTask() {
+	sourceDirAbs, _ := filepath.Abs(sourceDir)
+	directories, err := filepath.Glob(sourceDirAbs + "/*")
+
+	if err != nil {
+		fmt.Println("[READ DIRECTORIES] - error: ", err)
+		return
+	}
+
+	// Get all directory (character) names
+	for _, path := range directories {
+		dirname := filepath.Base(path)
+		characterCode, _ := strconv.ParseInt(dirname, 10, 8)
+
+		// Search each character directory to get all image paths
+		imgPaths, err := filepath.Glob(path + "/*")
+
+		if err != nil {
+			fmt.Println("[INVALID DIRECTORY] - ", dirname)
+			continue
+		}
+
+		// For each file in directory, process image and save new image in form:
+		// training-set/:character:/:index:.png
+		for index, imgPath := range imgPaths {
+			processImage(
+				imgPath,
+				strconv.FormatInt(int64(characterCode), 10),
+				strconv.FormatInt(int64(index), 10),
+			)
+		}
+	}
 }
 
 func init() {
@@ -46,5 +122,9 @@ func init() {
 	// processImagesCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 	processImagesCmd.
 		Flags().
-		StringP("source", "s", "", "Directory of source images for processing")
+		StringVarP(&sourceDir, "sourceDir", "s", "", "Directory of source images for processing")
+
+	processImagesCmd.
+		Flags().
+		StringVarP(&outputDir, "outputDir", "o", "", "Directory where process images are saved")
 }
