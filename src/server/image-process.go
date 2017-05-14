@@ -5,17 +5,16 @@ import (
 	"image/png"
 	"os"
 
+	"char-recogniser-go/src/database"
+
 	"github.com/harrydb/go/img/grayscale"
 	"github.com/nfnt/resize"
-)
-
-const (
-	IMAGE_SIZE = 32
 )
 
 // Helper function to save an image to a given path
 func SaveImage(img image.Image, path string) error {
 	file, err := os.Create(path)
+
 	if err != nil {
 		return err
 	}
@@ -28,7 +27,7 @@ func SaveImage(img image.Image, path string) error {
 }
 
 func NormaliseImage(img image.Image) image.Image {
-	resizedImg := resize.Resize(IMAGE_SIZE, IMAGE_SIZE, img, resize.NearestNeighbor)
+	resizedImg := resize.Resize(database.IMAGE_SIZE, database.IMAGE_SIZE, img, resize.NearestNeighbor)
 	grayImg := grayscale.Convert(resizedImg, grayscale.ToGrayLuminance)
 	return grayImg
 }

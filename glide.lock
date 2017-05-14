@@ -1,5 +1,5 @@
-hash: 26d127313be87f5180f807a870891bf529caee1a59b54b1c36528193529bb85a
-updated: 2017-05-12T00:45:39.8503105+01:00
+hash: 6e2a589b05f2e4277c50930dab316c66f67bc013c965b5aac1f3fe58ffb52a7c
+updated: 2017-05-14T14:11:04.087239+01:00
 imports:
 - name: github.com/fsnotify/fsnotify
   version: 4da3e2cfbabc9f751898f250b49f2439785783a1
@@ -59,7 +59,7 @@ imports:
 - name: github.com/spf13/cast
   version: acbeb36b902d72a7a4c18e8f3241075e7ab763e4
 - name: github.com/spf13/cobra
-  version: 4673102358fdd630e3bb0eb6dee96e4b533d53ec
+  version: 51b7cf57e102be20a09835264c9d92155d602532
 - name: github.com/spf13/jwalterweatherman
   version: 8f07c835e5cc1450c082fe3a439cf87b0cbb2d99
 - name: github.com/spf13/pflag
@@ -71,18 +71,20 @@ imports:
   subpackages:
   - msgp
 - name: golang.org/x/net
-  version: c9b681d35165f1995d6f3034e61f8761d4b90c99
+  version: 84f0e6f92b10139f986b1756e149a7d9de270cdc
   subpackages:
   - context
 - name: golang.org/x/sys
-  version: 9c9d83fe39ed3fd2d9249fcf6b755891fff54b03
+  version: f845067cf72a21fb4929b0e6a35273bd83b56396
   subpackages:
   - unix
 - name: golang.org/x/text
-  version: 470f45bf29f4147d6fbd7dfd0a02a848e49f5bf4
+  version: 19e51611da83d6be54ddafce4a4af510cb3e9ea4
   subpackages:
   - transform
   - unicode/norm
+- name: gopkg.in/mgo.v2
+  version: 3f83fa5005286a7fe593b055f0d7771a7dce4655
 - name: gopkg.in/yaml.v2
   version: cd8b52f8269e0feb286dfeef29f8fe4d5b397e0b
 testImports: []

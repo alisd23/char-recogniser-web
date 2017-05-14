@@ -14,7 +14,7 @@
 package cmd
 
 import (
-	"letter-recogniser-go/src/server"
+	"char-recogniser-go/src/server"
 
 	"github.com/spf13/cobra"
 )

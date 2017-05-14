@@ -15,10 +15,10 @@ package cmd
 
 import (
 	"bytes"
+	"char-recogniser-go/src/server"
 	"fmt"
 	"image/png"
 	"io/ioutil"
-	"letter-recogniser-go/src/server"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -27,7 +27,6 @@ import (
 )
 
 var sourceDir string
-var outputDir string
 
 // processImagesCmd represents the processImages command
 var processImagesCmd = &cobra.Command{
@@ -39,7 +38,7 @@ var processImagesCmd = &cobra.Command{
 		// or something - so it's easy to retrieve later
 		// NOTE - Need to MAKE SURE images are not saved to DB more than once!
 		fmt.Println("[PROCESSING IMAGES] - Directory: ", sourceDir)
-		runTask()
+		runProcessImagesTask()
 	},
 }
 
@@ -74,37 +73,35 @@ func processImage(filePath, character, name string) {
 	}
 }
 
-func runTask() {
+func runProcessImagesTask() {
 	sourceDirAbs, _ := filepath.Abs(sourceDir)
-	directories, err := filepath.Glob(sourceDirAbs + "/*")
+	imgPaths, err := filepath.Glob(sourceDirAbs + "/*/*")
 
 	if err != nil {
-		fmt.Println("[READ DIRECTORIES] - error: ", err)
+		fmt.Println("[INVALID PATHS]")
 		return
 	}
 
-	// Get all directory (character) names
-	for _, path := range directories {
-		dirname := filepath.Base(path)
-		characterCode, _ := strconv.ParseInt(dirname, 10, 8)
+	imgCounts := map[string]int{}
 
-		// Search each character directory to get all image paths
-		imgPaths, err := filepath.Glob(path + "/*")
+	// For each file in directory, process image and save new image in form:
+	// training-set/:character:/:index:.png
+	for _, imgPath := range imgPaths {
+		charCode := filepath.Base(filepath.Dir(imgPath))
+		_, err := strconv.ParseInt(charCode, 10, 8)
 
 		if err != nil {
-			fmt.Println("[INVALID DIRECTORY] - ", dirname)
+			fmt.Println("[INVALID DIRECTORY] Expected a char code, received: ", charCode)
 			continue
 		}
 
-		// For each file in directory, process image and save new image in form:
-		// training-set/:character:/:index:.png
-		for index, imgPath := range imgPaths {
-			processImage(
-				imgPath,
-				strconv.FormatInt(int64(characterCode), 10),
-				strconv.FormatInt(int64(index), 10),
-			)
-		}
+		processImage(
+			imgPath,
+			charCode,
+			strconv.FormatInt(int64(imgCounts[charCode]), 10),
+		)
+
+		imgCounts[charCode]++
 	}
 }
 
@@ -123,8 +120,4 @@ func init() {
 	processImagesCmd.
 		Flags().
 		StringVarP(&sourceDir, "sourceDir", "s", "", "Directory of source images for processing")
-
-	processImagesCmd.
-		Flags().
-		StringVarP(&outputDir, "outputDir", "o", "", "Directory where process images are saved")
 }
