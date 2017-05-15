@@ -44,6 +44,7 @@ var processImagesCmd = &cobra.Command{
 
 func processImage(filePath, character, name string) {
 	imgBytes, err := ioutil.ReadFile(filePath)
+	defer wg.Done()
 
 	if err != nil {
 		fmt.Printf("[READ IMAGE] %v/%v - Error: %v\n", character, name, err)
@@ -95,7 +96,9 @@ func runProcessImagesTask() {
 			continue
 		}
 
-		processImage(
+		wg.Add(1)
+
+		go processImage(
 			imgPath,
 			charCode,
 			strconv.FormatInt(int64(imgCounts[charCode]), 10),
@@ -103,6 +106,8 @@ func runProcessImagesTask() {
 
 		imgCounts[charCode]++
 	}
+
+	wg.Wait()
 }
 
 func init() {

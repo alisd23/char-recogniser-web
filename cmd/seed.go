@@ -20,6 +20,8 @@ import (
 	"path/filepath"
 	"strconv"
 
+	mgo "gopkg.in/mgo.v2"
+
 	"github.com/spf13/cobra"
 )
 
@@ -34,6 +36,35 @@ var seedCmd = &cobra.Command{
 }
 
 const LOCAL_URL = "localhost:27017"
+
+func seedImage(path string, db *mgo.Database) {
+	dirname := filepath.Base(filepath.Dir(path))
+	charCode, err := strconv.ParseInt(dirname, 10, 8)
+	defer wg.Done()
+
+	// CHeck directory charCode value is valid
+	if err != nil {
+		fmt.Printf("[INVALID DIRECTORY] %v - Expected a char code, received: %v\n", path, charCode)
+		return
+	}
+
+	// Read file []byte into variable
+	bytes, err := ioutil.ReadFile(path)
+
+	if err != nil {
+		fmt.Printf("[READ IMAGE] %v - error: %v\n", path, err)
+		return
+	}
+
+	// Insert image into DB
+	err = database.InsertExample(db, bytes, int(charCode))
+
+	if err != nil {
+		fmt.Printf("[DATABASE INSERT] %v - error: %v\n", path, err)
+	} else {
+		fmt.Printf("[DATABASE INSERT] Image inserted: %v\n", path)
+	}
+}
 
 func runSeedTask() {
 	db, err := database.Connect(LOCAL_URL)
@@ -50,35 +81,15 @@ func runSeedTask() {
 		return
 	}
 
+	wg.Add(len(imgPaths))
+
 	// For each file in directory, process image and save new image in form:
 	// training-set/:character:/:index:.png
 	for _, imgPath := range imgPaths {
-		dirname := filepath.Base(filepath.Dir(imgPath))
-		charCode, err := strconv.ParseInt(dirname, 10, 8)
-
-		// CHeck directory charCode value is valid
-		if err != nil {
-			fmt.Printf("[INVALID DIRECTORY] %v - Expected a char code, received: %v\n", imgPath, charCode)
-			continue
-		}
-
-		// Read file []byte into variable
-		bytes, err := ioutil.ReadFile(imgPath)
-
-		if err != nil {
-			fmt.Printf("[READ IMAGE] %v - error: %v\n", imgPath, err)
-			continue
-		}
-
-		// Insert image into DB
-		err = database.InsertExample(db, bytes, int(charCode))
-
-		if err != nil {
-			fmt.Printf("[DATABASE INSERT] %v - error: %v\n", imgPath, err)
-		} else {
-			fmt.Printf("[DATABASE INSERT] Image inserted: %v\n", imgPath)
-		}
+		go seedImage(imgPath, db)
 	}
+
+	wg.Wait()
 }
 
 func init() {

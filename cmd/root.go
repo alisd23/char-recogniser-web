@@ -16,12 +16,14 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"sync"
 
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
+var wg sync.WaitGroup
 var cfgFile string
 
 // RootCmd represents the base command when called without any subcommands
