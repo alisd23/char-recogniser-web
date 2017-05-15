@@ -10,6 +10,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	mgo "gopkg.in/mgo.v2"
+
 	"github.com/plimble/ace"
 )
 
@@ -19,10 +21,16 @@ func isValidCharCode(charCode int) bool {
 		(charCode >= 97 && charCode <= 122))
 }
 
+// Struct containing all endpoint handlers
+type Endpoints struct {
+	db         *mgo.Database
+	assetsPath string
+}
+
 // Default endpoint - serves HTML file
 // 404's are handled client-side so any 'unmatched' route uses this handler
-func index(c *ace.C) {
-	htmlPath, _ := filepath.Abs(filepath.Join(ASSETS_PATH, "index.html"))
+func (e Endpoints) index(c *ace.C) {
+	htmlPath, _ := filepath.Abs(filepath.Join(e.assetsPath, "index.html"))
 	html, err := ioutil.ReadFile(htmlPath)
 
 	if err != nil {
@@ -45,7 +53,7 @@ type TrainResponse struct {
 
 // Train endpoint
 // User sends image and expected char code
-func train(c *ace.C) {
+func (e Endpoints) train(c *ace.C) {
 	// Unmarshal body
 	body := TrainRequest{}
 	c.ParseJSON(&body)
@@ -71,7 +79,7 @@ func train(c *ace.C) {
 	err = png.Encode(buf, normalisedImg)
 	imgBytes := buf.Bytes()
 
-	database.InsertExample(DB, imgBytes, body.CharCode)
+	database.InsertExample(e.db, imgBytes, body.CharCode)
 
 	c.JSON(200, PredictResponse{
 		Success: true,
@@ -88,7 +96,7 @@ type PredictResponse struct {
 
 // Predict endpoint
 // User sends the letter iamge to predict (in bytes? form)
-func predict(c *ace.C) {
+func (e Endpoints) predict(c *ace.C) {
 	// Unmarshal body
 	body := PredictRequest{}
 	c.ParseJSON(&body)

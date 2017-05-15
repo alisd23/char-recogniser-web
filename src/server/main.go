@@ -7,8 +7,6 @@ import (
 	"path/filepath"
 	"strconv"
 
-	mgo "gopkg.in/mgo.v2"
-
 	"github.com/plimble/ace"
 	"github.com/rs/cors"
 )
@@ -16,17 +14,17 @@ import (
 const HOSTNAME = "localhost"
 const PORT = 9000
 
-var ASSETS_PATH string
-var DB *mgo.Database
-
 func Start(assetsPath string) {
-	ASSETS_PATH = assetsPath
-
 	router := ace.Default()
-	connection, err := database.Connect("localhost:27017")
+	db, err := database.Connect("localhost:27017")
+
+	// Struct containing all endpoint handlers
+	endpoints := Endpoints{
+		db:         db,
+		assetsPath: assetsPath,
+	}
 
 	// HACK Set globally sp this is available in other files
-	DB = connection
 
 	if err != nil {
 		fmt.Println("[SERVER] Database connection error: ", err)
@@ -41,15 +39,15 @@ func Start(assetsPath string) {
 	})
 
 	// Server static files
-	assetsPathAbs, _ := filepath.Abs(filepath.Join(ASSETS_PATH, "static"))
+	assetsPathAbs, _ := filepath.Abs(filepath.Join(assetsPath, "static"))
 	router.Static("/static", http.Dir(assetsPathAbs))
 
 	// API endpoints
-	router.POST("/api/predict", predict)
-	router.POST("/api/train", train)
+	router.POST("/api/predict", endpoints.predict)
+	router.POST("/api/train", endpoints.train)
 
 	// Send index.html on any unmatched url - front-end handles 404
-	router.RouteNotFound(index)
+	router.RouteNotFound(endpoints.index)
 
 	url := HOSTNAME + ":" + strconv.FormatInt(PORT, 10)
 	fmt.Printf("SERVER RUNNING ON %#v\n", url)
