@@ -42,9 +42,14 @@ var processImagesCmd = &cobra.Command{
 	},
 }
 
-func processImage(filePath, character, name string) {
+func processImage(filePath, character, name string, done chan bool) {
 	imgBytes, err := ioutil.ReadFile(filePath)
-	defer wg.Done()
+
+	// Send true down done channel when function returns
+	notifyDone := func() {
+		done <- true
+	}
+	defer notifyDone()
 
 	if err != nil {
 		fmt.Printf("[READ IMAGE] %v/%v - Error: %v\n", character, name, err)
@@ -84,6 +89,8 @@ func runProcessImagesTask() {
 	}
 
 	imgCounts := map[string]int{}
+	goroutines := 0
+	done := make(chan bool)
 
 	// For each file in directory, process image and save new image in form:
 	// training-set/:character:/:index:.png
@@ -96,18 +103,20 @@ func runProcessImagesTask() {
 			continue
 		}
 
-		wg.Add(1)
-
 		go processImage(
 			imgPath,
 			charCode,
 			strconv.FormatInt(int64(imgCounts[charCode]), 10),
+			done,
 		)
 
 		imgCounts[charCode]++
+		goroutines++
 	}
 
-	wg.Wait()
+	for i := 0; i < goroutines; i++ {
+		<-done
+	}
 }
 
 func init() {

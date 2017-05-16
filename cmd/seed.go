@@ -37,10 +37,15 @@ var seedCmd = &cobra.Command{
 
 const LOCAL_URL = "localhost:27017"
 
-func seedImage(path string, db *mgo.Database) {
+func seedImage(path string, db *mgo.Database, done chan<- bool) {
 	dirname := filepath.Base(filepath.Dir(path))
 	charCode, err := strconv.ParseInt(dirname, 10, 8)
-	defer wg.Done()
+
+	// Send true down done channel when function returns
+	notifyDone := func() {
+		done <- true
+	}
+	defer notifyDone()
 
 	// CHeck directory charCode value is valid
 	if err != nil {
@@ -81,15 +86,17 @@ func runSeedTask() {
 		return
 	}
 
-	wg.Add(len(imgPaths))
+	done := make(chan bool)
 
 	// For each file in directory, process image and save new image in form:
 	// training-set/:character:/:index:.png
 	for _, imgPath := range imgPaths {
-		go seedImage(imgPath, db)
+		go seedImage(imgPath, db, done)
 	}
 
-	wg.Wait()
+	for range imgPaths {
+		<-done
+	}
 }
 
 func init() {
