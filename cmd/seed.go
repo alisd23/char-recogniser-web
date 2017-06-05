@@ -14,8 +14,11 @@
 package cmd
 
 import (
+	"bytes"
 	"char-recogniser-go/src/database"
+	"char-recogniser-go/src/server"
 	"fmt"
+	"image/png"
 	"io/ioutil"
 	"path/filepath"
 	"strconv"
@@ -24,6 +27,8 @@ import (
 
 	"github.com/spf13/cobra"
 )
+
+var seedSourceDir string
 
 // seedCmd represents the seed command
 var seedCmd = &cobra.Command{
@@ -37,38 +42,44 @@ var seedCmd = &cobra.Command{
 
 const LOCAL_URL = "localhost:27017"
 
-func seedImage(path string, db *mgo.Database, done chan<- bool) {
+func createImageRecord(path string, db *mgo.Database) interface{} {
 	dirname := filepath.Base(filepath.Dir(path))
 	charCode, err := strconv.ParseInt(dirname, 10, 8)
 
-	// Send true down done channel when function returns
-	notifyDone := func() {
-		done <- true
-	}
-	defer notifyDone()
-
-	// CHeck directory charCode value is valid
+	// Check directory charCode value is valid
 	if err != nil {
 		fmt.Printf("[INVALID DIRECTORY] %v - Expected a char code, received: %v\n", path, charCode)
-		return
+		return nil
 	}
 
 	// Read file []byte into variable
-	bytes, err := ioutil.ReadFile(path)
+	bytesArray, err := ioutil.ReadFile(path)
+
+	reader := bytes.NewReader(bytesArray)
+	img, err := png.Decode(reader)
 
 	if err != nil {
 		fmt.Printf("[READ IMAGE] %v - error: %v\n", path, err)
-		return
+		return nil
 	}
+
+	normalisedImage := server.NormaliseImage(img)
 
 	// Insert image into DB
-	err = database.InsertExample(db, bytes, int(charCode))
+	return database.CreateExample(normalisedImage, int(charCode))
+}
 
-	if err != nil {
-		fmt.Printf("[DATABASE INSERT] %v - error: %v\n", path, err)
-	} else {
-		fmt.Printf("[DATABASE INSERT] Image inserted: %v\n", path)
+func seedBatch(db *mgo.Database, paths []string, batchNo int, done chan<- bool) {
+	records := make([]interface{}, 0)
+	for _, imgPath := range paths {
+		record := createImageRecord(imgPath, db)
+		if record != nil {
+			records = append(records, record)
+		}
 	}
+	database.InsertExamples(db, records)
+	fmt.Printf("Chunk %v processed\n", batchNo)
+	done <- true
 }
 
 func runSeedTask() {
@@ -78,7 +89,7 @@ func runSeedTask() {
 		return
 	}
 
-	sourceDirAbs, _ := filepath.Abs("training-set")
+	sourceDirAbs, _ := filepath.Abs(seedSourceDir)
 	imgPaths, err := filepath.Glob(sourceDirAbs + "/*/*")
 
 	if err != nil || len(imgPaths) == 0 {
@@ -90,11 +101,27 @@ func runSeedTask() {
 
 	// For each file in directory, process image and save new image in form:
 	// training-set/:character:/:index:.png
-	for _, imgPath := range imgPaths {
-		go seedImage(imgPath, db, done)
+	noOfChunks := 200
+	count := len(imgPaths)
+	chunkSize := count / noOfChunks
+	remainder := count % chunkSize
+
+	fmt.Printf("No of chunks: %v\n", noOfChunks)
+	fmt.Printf("Chunk size: %v\n", chunkSize)
+
+	for i := 0; i < noOfChunks; i++ {
+		start := i * chunkSize
+		end := start + chunkSize
+		go seedBatch(db, imgPaths[start:end], i+1, done)
+	}
+	if remainder > 0 {
+		start := noOfChunks * chunkSize
+		end := len(imgPaths)
+		go seedBatch(db, imgPaths[start:end], noOfChunks+1, done)
+		noOfChunks++
 	}
 
-	for range imgPaths {
+	for i := 0; i < noOfChunks; i++ {
 		<-done
 	}
 }
@@ -111,4 +138,7 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// seedCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	seedCmd.
+		Flags().
+		StringVarP(&seedSourceDir, "sourceDir", "s", "", "Directory of source images for processing")
 }

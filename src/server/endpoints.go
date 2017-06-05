@@ -55,6 +55,7 @@ type TrainResponse struct {
 // User sends image and expected char code
 func (e Endpoints) train(c *ace.C) {
 	// Unmarshal body
+	fmt.Println("Handling train request")
 	body := TrainRequest{}
 	c.ParseJSON(&body)
 
@@ -75,11 +76,9 @@ func (e Endpoints) train(c *ace.C) {
 	}
 
 	normalisedImg := NormaliseImage(decodedImg)
-	buf := new(bytes.Buffer)
-	err = png.Encode(buf, normalisedImg)
-	imgBytes := buf.Bytes()
 
-	database.InsertExample(e.db, imgBytes, body.CharCode)
+	record := database.CreateExample(normalisedImg, body.CharCode)
+	database.InsertExample(e.db, record)
 
 	c.JSON(200, PredictResponse{
 		Success: true,

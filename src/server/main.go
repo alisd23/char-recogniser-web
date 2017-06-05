@@ -43,6 +43,7 @@ func Start(assetsPath string) {
 	router.Static("/static", http.Dir(assetsPathAbs))
 
 	// API endpoints
+	router.GET("/test", func(c *ace.C) { fmt.Println("HERE") })
 	router.POST("/api/predict", endpoints.predict)
 	router.POST("/api/train", endpoints.train)
 
@@ -50,9 +51,9 @@ func Start(assetsPath string) {
 	router.RouteNotFound(endpoints.index)
 
 	url := HOSTNAME + ":" + strconv.FormatInt(PORT, 10)
-	fmt.Printf("SERVER RUNNING ON %#v\n", url)
 
 	handler := c.Handler(router)
+	fmt.Printf("SERVER RUNNING ON %#v\n", url)
 	err = http.ListenAndServe(url, handler)
 
 	if err != nil {
