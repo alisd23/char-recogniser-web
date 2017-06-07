@@ -1,0 +1,38 @@
+@import '../../styles/variables';
+
+.navbar {
+  flex: 0 0 auto;
+  background-color: $white;
+  color: $gray-darker;
+  padding-top: 25px;
+  text-align: center;
+  box-shadow: 0 3px 20px rgba($gray-darker, 0.3);
+}
+
+.page-links {
+  width: 500px;
+  max-width: 100%;
+  margin: 0 auto;
+  display: flex;
+  height: 50px;
+  margin-top: 15px;
+
+  .page-link {
+    flex: 1 0 0;
+    text-align: center;
+    transition: all 0.2s ease-out;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-bottom: 3px solid transparent;
+
+    &:hover {
+      color: $blue-light;
+    }
+    &.active {
+      border-color: $blue-light;
+      color: $blue-light;
+    }
+  }
+}

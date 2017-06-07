@@ -1,0 +1,15 @@
+@import './variables';
+
+input {
+  border-radius: 4px;
+  width: 100%;
+  background-color: $white;
+  border: 1px solid $gray-light;
+  transition: all 0.25s ease-out;
+  outline: none;
+  padding: 0.6rem 0.8rem;
+
+  &:active, &:focus {
+    border-color: $blue-light;
+  }
+}

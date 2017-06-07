@@ -1,0 +1,45 @@
+@import '../../styles/variables';
+
+$panel-shadow: -2px 2px 16px rgba($gray-darker, 0.2);
+
+.canvas-page {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  flex-grow: 1;
+  border-radius: 6px;
+
+  canvas {
+    box-shadow: $panel-shadow;
+  }
+}
+
+.canvas-sidebar {
+  display: flex;
+  flex-direction: column;
+  padding: 1.2rem;
+  margin-right: 1.2rem;
+  background-color: $white;
+  border-top: 2px solid $gray-lighter;
+  border-radius: 6px;
+  flex: 0 0 210px;
+  box-shadow: $panel-shadow;
+
+  .sidebar-title {
+    border-bottom: 2px solid $gray-lighter;
+    text-align: center;
+    margin: 0;
+    font-weight: 300;
+    margin-bottom: 1.2rem;
+    padding-bottom: 0.8rem;
+  }
+
+  .sidebar-separator {
+    height: 1px;
+    background-color: $gray-lighter;
+    margin: 0.8rem 0;
+  }
+
+  .sidebar-row {
+  }
+}
