@@ -1,7 +1,6 @@
 package database
 
 import (
-	"fmt"
 	"image"
 	"image/draw"
 
@@ -27,8 +26,7 @@ func InsertExamples(db *mgo.Database, examples []interface{}) error {
 	bulk := db.C(TRAINING_SET).Bulk()
 	bulk.Insert(examples...)
 	bulk.Unordered()
-	res, err := bulk.Run()
-	fmt.Println("Bulk result: ", res)
+	_, err := bulk.Run()
 	return err
 }
 

@@ -23,6 +23,7 @@ import (
 	"path/filepath"
 	"strconv"
 
+	shuffle "github.com/shogo82148/go-shuffle"
 	mgo "gopkg.in/mgo.v2"
 
 	"github.com/spf13/cobra"
@@ -53,7 +54,7 @@ func createImageRecord(path string, db *mgo.Database) interface{} {
 	}
 
 	// Read file []byte into variable
-	bytesArray, err := ioutil.ReadFile(path)
+	bytesArray, _ := ioutil.ReadFile(path)
 
 	reader := bytes.NewReader(bytesArray)
 	img, err := png.Decode(reader)
@@ -92,6 +93,9 @@ func runSeedTask() {
 	sourceDirAbs, _ := filepath.Abs(seedSourceDir)
 	imgPaths, err := filepath.Glob(sourceDirAbs + "/*/*")
 
+	// Shuffle so we insert in a random order
+	shuffle.Strings(imgPaths)
+
 	if err != nil || len(imgPaths) == 0 {
 		fmt.Println("[INVALID PATHS] Error reading training-set directory or no images found")
 		return
@@ -101,7 +105,7 @@ func runSeedTask() {
 
 	// For each file in directory, process image and save new image in form:
 	// training-set/:character:/:index:.png
-	noOfChunks := 200
+	noOfChunks := 150
 	count := len(imgPaths)
 	chunkSize := count / noOfChunks
 	remainder := count % chunkSize
