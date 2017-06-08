@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import uuid from 'uuid';
+import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import DigitCanvas from '../DigitCanvas';
 import Results from './Results';
 import './Predict.scss';
@@ -8,7 +10,9 @@ export default class Predict extends Component {
 
   state = {
     results: null,
-    error: false
+    error: false,
+    loading: false,
+    requestID: null
   }
 
   onClear = () => {
@@ -16,9 +20,12 @@ export default class Predict extends Component {
   }
 
   onSubmit = () => {
+    const requestID = uuid.v4();
     this.setState({
-      error: false
-    })
+      error: false,
+      loading: true,
+      requestID
+    });
     fetch('/api/predict', {
       method: 'POST',
       mode: 'cors',
@@ -30,25 +37,45 @@ export default class Predict extends Component {
       .then(res => {
         if (res.error) {
           this.setState({
-            error: true
+            error: true,
+            loading: false
           })
         }
-        this.setState({
-          results: {
-            predictions: res.predictions,
-            image: res.image
-          }
-        })
+        // Only show results if this is the most recent request
+        if (requestID === this.state.requestID) {
+          this.setState({
+            loading: false,
+            results: {
+              predictions: res.predictions,
+              image: res.image
+            }
+          })
+        }
       });
   }
 
   getResultsFragment = () => {
-    const { error, results } = this.state;
+    const { error, results, loading } = this.state;
 
     if (error) {
       return (
-        <div className='results-error'>
-          An error occurred <i class="material-icons md-32">sentiment_very_dissatisfied</i>
+        <div
+          key="error"
+          className="results-error"
+        >
+          An error occurred <i className="material-icons md-32">sentiment_very_dissatisfied</i>
+        </div>
+      )
+    }
+
+    if (loading) {
+      return (
+        <div
+          key="loading"
+          className="results-loading"
+        >
+          <div className="spinner" />
+          <span>Fetching predictions...</span>
         </div>
       )
     }
@@ -56,13 +83,17 @@ export default class Predict extends Component {
     if (results) {
       return (
         <Results
+          key="results"
           image={this.state.results.image}
           predictions={this.state.results.predictions}
         />
       )
     } else {
       return (
-        <div className="no-results">
+        <div
+          key="no-results"
+          className="no-results"
+        >
           <i className="material-icons md-48 gesture">gesture</i>
           <span>
             Draw a character (left) and press <strong>submit</strong> to see results
@@ -75,32 +106,38 @@ export default class Predict extends Component {
   render() {
     return (
       <div className="predict-page">
-        <div className="canvas-sidebar">
-          <h4 className="sidebar-title">Predict</h4>
-          <button
-            className="btn-red sidebar-row"
-            onClick={this.onClear}
-          >
-            Clear
-          </button>
-          <div className="sidebar-separator" />
-          <button
-            className="btn-green sidebar-row"
-            onClick={this.onSubmit}
-          >
-            Submit
-          </button>
-        </div>
         <div className="canvas-wrapper">
-          <DigitCanvas
-            ref={el => (this.canvasComponent = el)}
-            penColour="black"
-            penRadius={8}
-            size={400}
-          />
+          <div className="canvas-toolbar">
+            <i
+              className="clear material-icons"
+              onClick={this.onClear}
+            >
+              clear
+            </i>
+            <button
+              className="btn-green submit"
+              onClick={this.onSubmit}
+            >
+              submit
+            </button>
+          </div>
+          <div className="canvas">
+            <DigitCanvas
+              ref={el => (this.canvasComponent = el)}
+              penColour="black"
+              penRadius={7}
+              size={400}
+            />
+          </div>
         </div>
-        <div className="results-panel">
-          {this.getResultsFragment()}
+        <div className="results-wrapper">
+          <ReactCSSTransitionGroup
+            transitionName="fade"
+            transitionEnterTimeout={250}
+            transitionLeaveTimeout={250}
+          >
+            {this.getResultsFragment()}
+          </ReactCSSTransitionGroup>
         </div>
       </div>
     );

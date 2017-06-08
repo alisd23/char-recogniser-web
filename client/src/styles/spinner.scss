@@ -1,0 +1,35 @@
+@keyframes Spinner {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spinner {
+  display: flex;
+  align-items: center;
+
+  &:before {
+    content: '';
+    width: 55px;
+    height: 55px;
+    display: block;
+    border-radius: 50%;
+    border: 5px solid rgba(#aaa, 0.4);
+    border-top-color: rgba(#fff, 0);
+    animation: Spinner 0.75s linear infinite;
+  }
+  &.spinner-sm:before {
+    width: 20px;
+    height: 20px;
+    border-width: 3px;
+  }
+  &.spinner-xs:before {
+    width: 16px;
+    height: 16px;
+    border-width: 2px;
+  }
+  &.spinner-light:before {
+    border-color: rgba(#eee, 0.4);
+    border-top-color: rgba(#fff, 0.8);
+  }
+}

@@ -1,6 +1,7 @@
 @import '../../styles/variables';
 
 $panel-shadow: -2px 2px 16px rgba($gray-darker, 0.2);
+$toolbar-height: 54px;
 
 .predict-page {
   display: flex;
@@ -11,21 +12,105 @@ $panel-shadow: -2px 2px 16px rgba($gray-darker, 0.2);
 }
 
 .canvas-wrapper {
-  border: 2px solid $blue-light;
-  width: 404px;
-  height: 404px;
-  margin-right: 1.2rem;
-  box-shadow: $panel-shadow;
+  margin-top: -$toolbar-height;
+  .canvas {
+    border: 2px solid $blue-medium;
+    width: 404px;
+    height: 404px;
+    margin-right: 1.2rem;
+    box-shadow: $panel-shadow;
+  }
 }
 
-.results-panel {
-  padding: 1.2rem;
+.results-wrapper {
+  padding: 2rem;
+  padding-bottom: 0.6rem;
   background-color: $white;
   border-radius: 4px;
-  flex: 0 0 400px;
   min-height: 400px;
+  flex: 0 0 400px;
   box-shadow: $panel-shadow;
   position: relative;
+
+  .results {
+    .results-header {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-bottom: 2px solid $gray-lighter;
+      padding-bottom: 25px;
+      margin-bottom: 4px;
+
+      h2 {
+        margin: 0;
+      }
+
+      img.example {
+        $size: 40px;
+        width: $size;
+        height: $size;
+        margin-left: -$size;
+        border-radius: 4px;
+        border: 1px solid $gray-light;
+        margin-right: 20px;
+      }
+    }
+
+    .prediction {
+      display: flex;
+      align-items: center;
+      padding: 14px 0;
+
+      &:not(:last-child) {
+        border-bottom: 1px solid $gray-lighter;
+      }
+
+      &:first-child {
+        color: $blue-light;
+      }
+
+      .index {
+        color: $gray-medium;
+        margin-right: 20px;
+      }
+
+      .character-wrapper, .confidence-wrapper {
+        flex: 1;
+        align-self: stretch;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+
+        > span:last-child {
+          display: flex;
+          align-items: center;
+        }
+
+        > :first-child {
+          font-size: 12px;
+          color: $gray-medium;
+        }
+
+        > :last-child {
+          font-weight: bold;
+          flex: 1;
+        }
+      }
+
+      .character-wrapper {
+        > :last-child {
+          font-size: 34px;
+        }
+      }
+
+      .confidence-wrapper {
+        > :last-child {
+          font-size: 24px;
+        }
+      }
+    }
+  }
 
   .no-results {
     position: absolute;
@@ -36,7 +121,7 @@ $panel-shadow: -2px 2px 16px rgba($gray-darker, 0.2);
     justify-content: center;
     align-items: center;
     color: $gray-dark;
-    background-color: $gray-lighter;
+    background-color: $white;
 
     .material-icons.gesture {
       color: $gray-medium;
@@ -46,17 +131,50 @@ $panel-shadow: -2px 2px 16px rgba($gray-darker, 0.2);
       line-height: 1.5;
     }
   }
+
+  .results-loading {
+    position: absolute;
+    top: 0; bottom: 0;
+    right: 0; left: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: $white;
+
+    span {
+      margin-top: 20px;
+      text-transform: uppercase;
+      font-size: 14px;
+      font-weight: bold;
+      color: $gray-medium;
+    }
+  }
 }
 
-.canvas-sidebar {
+.canvas-toolbar {
   display: flex;
-  flex-direction: column;
-  padding: 1.2rem;
+  padding: 0 1.2rem;
+  height: $toolbar-height;
+  justify-content: space-between;
+  align-items: center;
   margin-right: 1.2rem;
   background-color: $white;
-  border-radius: 4px;
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
   flex: 0 0 210px;
   box-shadow: $panel-shadow;
+
+  .material-icons.clear {
+    color: $red-dark;
+    cursor: pointer;
+    font-size: 32px;
+    transition: all 0.25s ease-out;
+
+    &:hover {
+      color: lighten($red-dark, 10);
+    }
+  }
 
   .sidebar-title {
     border-bottom: 2px solid $gray-lighter;
@@ -65,11 +183,5 @@ $panel-shadow: -2px 2px 16px rgba($gray-darker, 0.2);
     font-weight: 300;
     margin-bottom: 1.2rem;
     padding-bottom: 0.8rem;
-  }
-
-  .sidebar-separator {
-    height: 1px;
-    background-color: $gray-lighter;
-    margin: 0.8rem 0;
   }
 }

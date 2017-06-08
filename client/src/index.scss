@@ -1,7 +1,10 @@
 @import './styles/variables';
 @import './styles/buttons';
 @import './styles/input';
+@import './styles/spinner';
+@import './styles/transitions';
 @import './styles/material';
+@import url('https://fonts.googleapis.com/css?family=Open+Sans:400,700');
 
 body {
   margin: 0;
@@ -9,6 +12,12 @@ body {
   font-family: sans-serif;
   background-color: $gray-lighter;
   color: $gray-darker;
+  font-family: 'Open Sans', sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 400;
+  margin-top: 0;
 }
 
 *, *::before, *::after {
