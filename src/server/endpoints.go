@@ -2,12 +2,14 @@ package server
 
 import (
 	"bytes"
-	"char-recogniser-go/src/database"
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"image/png"
 	"io/ioutil"
+	"net/http"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	mgo "gopkg.in/mgo.v2"
@@ -21,10 +23,11 @@ func isValidCharCode(charCode int) bool {
 		(charCode >= 97 && charCode <= 122))
 }
 
-// Struct containing all endpoint handlers
+// Endpoints is a struct containing all endpoint handlers
 type Endpoints struct {
 	db         *mgo.Database
 	assetsPath string
+	pythonPort int
 }
 
 // Default endpoint - serves HTML file
@@ -42,62 +45,30 @@ func (e Endpoints) index(c *ace.C) {
 	c.String(200, string(html))
 }
 
-type TrainRequest struct {
-	Image    string
-	CharCode int
-}
-type TrainResponse struct {
-	Success bool   `json:"success"`
-	Error   string `json:"error"`
-}
-
-// Train endpoint
-// User sends image and expected char code
-func (e Endpoints) train(c *ace.C) {
-	// Unmarshal body
-	fmt.Println("Handling train request")
-	body := TrainRequest{}
-	c.ParseJSON(&body)
-
-	// Convert base 64 image into []byte, trimming off type information first
-	b64data := body.Image[strings.IndexByte(body.Image, ',')+1:]
-	imgData, err := base64.StdEncoding.DecodeString(b64data)
-
-	// Decode []byte into image.Image type
-	decodedImg, err := png.Decode(bytes.NewReader(imgData))
-
-	if err != nil || !isValidCharCode(body.CharCode) {
-		fmt.Println("[SERVER] /api/train ERROR: ", err)
-		c.JSON(200, TrainResponse{
-			Success: false,
-			Error:   err.Error(),
-		})
-		return
-	}
-
-	normalisedImg := NormaliseImage(decodedImg)
-
-	record := database.CreateExample(normalisedImg, body.CharCode)
-	database.InsertExample(e.db, record)
-
-	c.JSON(200, PredictResponse{
-		Success: true,
-	})
-}
-
-type PredictRequest struct {
+type predictRequest struct {
 	Image string
 }
-type PredictResponse struct {
-	Success bool   `json:"success"`
-	Error   string `json:"error"`
+type predictResponse struct {
+	Error       string       `json:"error"`
+	Image       string       `json:"image"`
+	Predictions []prediction `json:"predictions"`
+}
+type prediction struct {
+	Charcode   int    `json:"charcode"`
+	Confidence string `json:"confidence"`
+}
+type pythonPredictReq struct {
+	Image []float32 `json:"image"`
+}
+type pythonPredictRes struct {
+	Predictions []prediction `json:"predictions"`
 }
 
 // Predict endpoint
 // User sends the letter iamge to predict (in bytes? form)
 func (e Endpoints) predict(c *ace.C) {
 	// Unmarshal body
-	body := PredictRequest{}
+	body := predictRequest{}
 	c.ParseJSON(&body)
 
 	// Convert base 64 image into []byte, trimming off type information first
@@ -109,18 +80,49 @@ func (e Endpoints) predict(c *ace.C) {
 
 	if err != nil {
 		fmt.Println("[SERVER] /api/predict ERROR: ", err)
-		c.JSON(200, PredictResponse{
-			Success: false,
-			Error:   err.Error(),
+		c.JSON(500, predictResponse{
+			Error: err.Error(),
 		})
 		return
 	}
 
 	normalisedImg := NormaliseImage(decodedImg)
 
-	fmt.Println(normalisedImg.Bounds())
+	pixels := GetPixels(normalisedImg)
 
-	c.JSON(200, PredictResponse{
-		Success: true,
+	pythonBody := pythonPredictReq{
+		Image: pixels,
+	}
+	b := new(bytes.Buffer)
+	json.NewEncoder(b).Encode(pythonBody)
+	pyPredictURL := "http://localhost:" + strconv.Itoa(e.pythonPort) + "/predict"
+	res, _ := http.Post(pyPredictURL, "application/json; charset=utf-8", b)
+
+	var pythonRes pythonPredictRes
+
+	json.NewDecoder(res.Body).Decode(&pythonRes)
+
+	if pythonRes.Predictions == nil {
+		fmt.Println("Python response invalid", pythonRes)
+		c.JSON(500, predictResponse{
+			Error: "Prediction request failed",
+		})
+		return
+	}
+
+	buf := new(bytes.Buffer)
+	err = png.Encode(buf, normalisedImg)
+	imageBytes := buf.Bytes()
+
+	if err != nil {
+		fmt.Println("Image encoding failed", err)
+		c.JSON(500, predictResponse{
+			Error: "Prediction request failed",
+		})
+		return
+	}
+	c.JSON(200, predictResponse{
+		Predictions: pythonRes.Predictions,
+		Image:       base64.StdEncoding.EncodeToString(imageBytes),
 	})
 }

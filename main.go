@@ -13,7 +13,7 @@
 
 package main
 
-import "char-recogniser-go/cmd"
+import "char-recogniser-web/cmd"
 
 func main() {
 	cmd.Execute()

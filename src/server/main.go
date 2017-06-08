@@ -1,7 +1,7 @@
 package server
 
 import (
-	"char-recogniser-go/src/database"
+	"char-recogniser-web/src/database"
 	"fmt"
 	"net/http"
 	"path/filepath"
@@ -11,10 +11,10 @@ import (
 	"github.com/rs/cors"
 )
 
-const HOSTNAME = "localhost"
-const PORT = 9000
+const hostname = "localhost"
 
-func Start(assetsPath string) {
+// Start starts the server
+func Start(assetsPath string, port int, pyPort int) {
 	router := ace.Default()
 	db, err := database.Connect("localhost:27017")
 
@@ -22,6 +22,7 @@ func Start(assetsPath string) {
 	endpoints := Endpoints{
 		db:         db,
 		assetsPath: assetsPath,
+		pythonPort: pyPort,
 	}
 
 	// HACK Set globally sp this is available in other files
@@ -45,12 +46,11 @@ func Start(assetsPath string) {
 	// API endpoints
 	router.GET("/test", func(c *ace.C) { fmt.Println("HERE") })
 	router.POST("/api/predict", endpoints.predict)
-	router.POST("/api/train", endpoints.train)
 
 	// Send index.html on any unmatched url - front-end handles 404
 	router.RouteNotFound(endpoints.index)
 
-	url := HOSTNAME + ":" + strconv.FormatInt(PORT, 10)
+	url := hostname + ":" + strconv.FormatInt(int64(port), 10)
 
 	handler := c.Handler(router)
 	fmt.Printf("SERVER RUNNING ON %#v\n", url)

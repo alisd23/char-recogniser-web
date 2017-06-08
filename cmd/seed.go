@@ -15,8 +15,8 @@ package cmd
 
 import (
 	"bytes"
-	"char-recogniser-go/src/database"
-	"char-recogniser-go/src/server"
+	"char-recogniser-web/src/database"
+	"char-recogniser-web/src/server"
 	"fmt"
 	"image/png"
 	"io/ioutil"
@@ -41,7 +41,7 @@ var seedCmd = &cobra.Command{
 	},
 }
 
-const LOCAL_URL = "localhost:27017"
+const localURL = "localhost:27017"
 
 func createImageRecord(path string, db *mgo.Database) interface{} {
 	dirname := filepath.Base(filepath.Dir(path))
@@ -67,7 +67,7 @@ func createImageRecord(path string, db *mgo.Database) interface{} {
 	normalisedImage := server.NormaliseImage(img)
 
 	// Insert image into DB
-	return database.CreateExample(normalisedImage, int(charCode))
+	return server.CreateExample(normalisedImage, int(charCode))
 }
 
 func seedBatch(db *mgo.Database, paths []string, batchNo int, done chan<- bool) {
@@ -78,13 +78,16 @@ func seedBatch(db *mgo.Database, paths []string, batchNo int, done chan<- bool) 
 			records = append(records, record)
 		}
 	}
-	database.InsertExamples(db, records)
-	fmt.Printf("Chunk %v processed\n", batchNo)
+	err := server.InsertExamples(db, records)
+
+	if err != nil {
+		fmt.Printf("Chunk %v ERROR\n", err)
+	}
 	done <- true
 }
 
 func runSeedTask() {
-	db, err := database.Connect(LOCAL_URL)
+	db, err := database.Connect(localURL)
 
 	if err != nil {
 		return
@@ -105,7 +108,7 @@ func runSeedTask() {
 
 	// For each file in directory, process image and save new image in form:
 	// training-set/:character:/:index:.png
-	noOfChunks := 150
+	noOfChunks := 200
 	count := len(imgPaths)
 	chunkSize := count / noOfChunks
 	remainder := count % chunkSize
@@ -127,6 +130,7 @@ func runSeedTask() {
 
 	for i := 0; i < noOfChunks; i++ {
 		<-done
+		fmt.Printf("Chunks processed: %v / %v\n", i+1, noOfChunks)
 	}
 }
 

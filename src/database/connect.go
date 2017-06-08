@@ -6,8 +6,9 @@ import (
 	mgo "gopkg.in/mgo.v2"
 )
 
-var DATABASE = "char-recogniser"
+var database = "char-recogniser"
 
+// Connect connects to the MongoDB database
 func Connect(url string) (*mgo.Database, error) {
 	session, err := mgo.Dial(url)
 
@@ -16,6 +17,6 @@ func Connect(url string) (*mgo.Database, error) {
 		return nil, err
 	}
 
-	db := session.DB(DATABASE)
+	db := session.DB(database)
 	return db, nil
 }
