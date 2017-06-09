@@ -95,9 +95,10 @@ export default class Predict extends Component {
           className="no-results"
         >
           <i className="material-icons md-48 gesture">gesture</i>
-          <span>
-            Draw a character (left) and press <strong>submit</strong> to see results
-          </span>
+          <div>
+            <p>Draw a character (left) and press <strong>submit</strong> to see results.</p>
+            <p>Draw in the center of the canvas and not too big.</p>
+          </div>
         </div>
       )
     }
@@ -106,32 +107,33 @@ export default class Predict extends Component {
   render() {
     return (
       <div className="predict-page">
-        <div className="canvas-wrapper">
-          <div className="canvas-toolbar">
-            <i
-              className="clear material-icons"
-              onClick={this.onClear}
-            >
-              clear
-            </i>
-            <button
-              className="btn-green submit"
-              onClick={this.onSubmit}
-            >
-              submit
-            </button>
+        <div className="predict-page-inner">
+          <div className="canvas-wrapper">
+            <div className="canvas-toolbar">
+              <i
+                className="clear material-icons"
+                onClick={this.onClear}
+              >
+                clear
+              </i>
+              <button
+                className="btn-green submit"
+                onClick={this.onSubmit}
+              >
+                submit
+              </button>
+            </div>
+            <div className="canvas">
+              <DigitCanvas
+                ref={el => (this.canvasComponent = el)}
+                penColour="black"
+                penRadius={7}
+                size={400}
+              />
+            </div>
           </div>
-          <div className="canvas">
-            <DigitCanvas
-              ref={el => (this.canvasComponent = el)}
-              penColour="black"
-              penRadius={7}
-              size={400}
-            />
-          </div>
-        </div>
-        <div className="results-wrapper">
           <ReactCSSTransitionGroup
+            className="results-wrapper"
             transitionName="fade"
             transitionEnterTimeout={250}
             transitionLeaveTimeout={250}

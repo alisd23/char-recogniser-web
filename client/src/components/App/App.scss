@@ -7,7 +7,9 @@
 }
 
 .app-main {
-  flex: 1 0 0;
   display: flex;
-  align-items: center;
+  flex: 1;
+  padding-top: 90px;
+  padding-bottom: 60px;
+  overflow: auto;
 }

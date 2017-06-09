@@ -4,15 +4,20 @@ $panel-shadow: -2px 2px 16px rgba($gray-darker, 0.2);
 $toolbar-height: 54px;
 
 .predict-page {
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
   flex-grow: 1;
-  border-radius: 6px;
+  position: relative;
+
+  .predict-page-inner {
+    position: absolute;
+    top: 0; bottom: 0;
+    right: 0; left: 0;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+  }
 }
 
 .canvas-wrapper {
-  margin-top: -$toolbar-height;
   .canvas {
     border: 2px solid $blue-medium;
     width: 404px;
@@ -23,23 +28,55 @@ $toolbar-height: 54px;
 }
 
 .results-wrapper {
-  padding: 2rem;
-  padding-bottom: 0.6rem;
+  margin-top: $toolbar-height;
   background-color: $white;
   border-radius: 4px;
   min-height: 400px;
+  overflow: hidden;
   flex: 0 0 400px;
   box-shadow: $panel-shadow;
   position: relative;
+  display: flex;
+  max-height: calc(100% - #{$toolbar-height});
+
+  .show-more {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0.8rem 1.6rem;
+    text-transform: uppercase;
+    font-size: 12px;
+    font-weight: bold;
+    text-align: center;
+    color: $gray-medium;
+    transition: all 0.25s ease-out;
+    cursor: pointer;
+
+    &:hover {
+      color: $blue-light
+    }
+
+    .material-icons {
+      margin-left: 2px;
+    }
+  }
 
   .results {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+
     .results-header {
       display: flex;
       justify-content: center;
       align-items: center;
       border-bottom: 2px solid $gray-lighter;
-      padding-bottom: 25px;
       margin-bottom: 4px;
+      margin-left: 2rem;
+      margin-right: 2rem;
+      padding-top: 1.4rem;
+      padding-bottom: 1.4rem;
+      flex-shrink: 0;
 
       h2 {
         margin: 0;
@@ -56,22 +93,33 @@ $toolbar-height: 54px;
       }
     }
 
-    .prediction {
-      display: flex;
-      align-items: center;
+    .predictions {
+      flex: 1;
+      overflow: auto;
+      padding-left: 1.6rem;
+      padding-right: 1.6rem;
+      padding-top: 0.6rem;
+    }
+
+    .prediction-top, .prediction-rest {
       padding: 14px 0;
 
       &:not(:last-child) {
         border-bottom: 1px solid $gray-lighter;
       }
 
-      &:first-child {
-        color: $blue-light;
-      }
-
       .index {
         color: $gray-medium;
         margin-right: 20px;
+      }
+    }
+
+    .prediction-top {
+      display: flex;
+      align-items: center;
+
+      &:first-child {
+        color: $blue-light;
       }
 
       .character-wrapper, .confidence-wrapper {
@@ -110,6 +158,43 @@ $toolbar-height: 54px;
         }
       }
     }
+
+    .prediction-rest {
+      display: flex;
+      align-items: center;
+
+      .index {
+        display: inline-block;
+        width: 26px;
+      }
+
+      .character-wrapper {
+        display: flex;
+        flex: 1;
+
+        .keys, .values {
+          span {
+            display: block;
+          }
+        }
+        .keys {
+          color: $gray-dark;
+          font-size: 12px;
+          padding-right: 8px;
+          margin-right: 8px;
+          border-right: 1px solid $gray-light;
+        }
+        .values {
+          font-size: 12px;
+          color: $gray-darker;
+          font-weight: bold;
+        }
+      }
+
+      .confidence-wrapper {
+        font-size: 12px;
+      }
+    }
   }
 
   .no-results {
@@ -127,8 +212,14 @@ $toolbar-height: 54px;
       color: $gray-medium;
       margin-right: 20px;
     }
-    span {
+
+    p:first-child {
       line-height: 1.5;
+    }
+    p:last-child {
+      font-size: 14px;
+      margin-top: 16px;
+      color: $gray-medium;
     }
   }
 

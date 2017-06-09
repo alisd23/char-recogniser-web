@@ -126,3 +126,28 @@ func (e Endpoints) predict(c *ace.C) {
 		Image:       base64.StdEncoding.EncodeToString(imageBytes),
 	})
 }
+
+// Parameters endpoint
+// Fetches various model parameters (e.g. conv filters)
+func (e Endpoints) parameters(c *ace.C) {
+	var result map[string]interface{}
+
+	fs := e.db.GridFS("training_runs")
+	err := fs.Find(nil).Sort("_id").One(&result)
+
+	if err != nil {
+		fmt.Println("[/parameters] ERROR finding GridFS file ", err)
+		return
+	}
+
+	file, err := fs.OpenId(result["_id"])
+
+	if err != nil {
+		fmt.Println("[/parameters] ERROR opening GridFS file", err)
+		return
+	}
+
+	var buf bytes.Buffer
+	buf.ReadFrom(file)
+	buf.WriteTo(c.Writer)
+}
