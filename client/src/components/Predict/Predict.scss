@@ -13,7 +13,7 @@ $toolbar-height: 54px;
     top: 0; bottom: 0;
     right: 0; left: 0;
     display: flex;
-    padding: 5rem 1.2rem;
+    padding: 4rem 1.2rem 3rem 1.2rem;
     align-items: flex-start;
     justify-content: center;
 
@@ -21,7 +21,6 @@ $toolbar-height: 54px;
       flex-direction: column;
       position: relative;
       align-items: center;
-      padding-bottom: 2rem;
     }
   }
 }
@@ -78,7 +77,6 @@ $toolbar-height: 54px;
 }
 
 .results-wrapper {
-  margin-top: $toolbar-height;
   background-color: $white;
   border-radius: 4px;
   min-height: 400px;
@@ -89,7 +87,11 @@ $toolbar-height: 54px;
   box-shadow: $panel-shadow;
   position: relative;
   display: flex;
-  max-height: calc(100% - #{$toolbar-height});
+  max-height: 100%;
+
+  @media(max-width: $tablet) {
+    flex: 1 0 auto;
+  }
 
   .show-more {
     display: flex;

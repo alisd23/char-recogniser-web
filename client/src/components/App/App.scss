@@ -11,7 +11,6 @@
 .app-main {
   display: flex;
   flex: 1;
-  padding-bottom: 60px;
   overflow: auto;
 
   @media(max-width: $tablet) {
