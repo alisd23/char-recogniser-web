@@ -1,16 +1,19 @@
 import React, { Component } from 'react';
 import classnames from 'classnames';
 import Predict from '../Predict';
+import Analysis from '../Analysis';
 import Navbar from '../Navbar';
 import './App.scss';
 
 const PAGES = {
-  PREDICT: 1
+  PREDICT: 1,
+  ANALYSIS: 2
 };
 
 class App extends Component {
   state = {
-    page: PAGES.PREDICT
+    page: PAGES.PREDICT,
+    filters: []
   }
 
   getPageLinkFragment = (page, text) => {
@@ -36,6 +39,11 @@ class App extends Component {
           <Predict />
         )
       }
+      case PAGES.ANALYSIS: {
+        return (
+          <Analysis />
+        )
+      }
       default:
         return null;
     }
@@ -46,6 +54,7 @@ class App extends Component {
       <div className="app">
         <Navbar>
           {this.getPageLinkFragment(PAGES.PREDICT, 'Predict')}
+          {this.getPageLinkFragment(PAGES.ANALYSIS, 'Analysis')}
         </Navbar>
         <div className="app-main">
           {this.getPageFragment()}

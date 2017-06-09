@@ -63,6 +63,8 @@ class DigitCanvas extends Component {
   onTouchStart = (e) => {
     if (e.touches.length) {
       this.onDrawStart(e.touches[0]);
+      // Stop scrolling
+      document.querySelector('.app-main').style.overflow = 'hidden';
     }
   }
   onTouchMove = (e) => {
@@ -72,6 +74,7 @@ class DigitCanvas extends Component {
   }
   onTouchEnd = (e) => {
     this.onDrawStop();
+    document.querySelector('.app-main').style.overflow = 'auto';
   }
 
   // DRAW handlers (start, move, stop)

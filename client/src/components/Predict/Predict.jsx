@@ -51,7 +51,8 @@ export default class Predict extends Component {
             }
           })
         }
-      });
+      })
+      .catch(err => this.setState({ error: true }));
   }
 
   getResultsFragment = () => {
@@ -63,7 +64,8 @@ export default class Predict extends Component {
           key="error"
           className="results-error"
         >
-          An error occurred <i className="material-icons md-32">sentiment_very_dissatisfied</i>
+          <p>An error occurred whilst fetching the predictions</p>
+          <i className="material-icons md-36">sentiment_very_dissatisfied</i>
         </div>
       )
     }
@@ -96,7 +98,7 @@ export default class Predict extends Component {
         >
           <i className="material-icons md-48 gesture">gesture</i>
           <div>
-            <p>Draw a character (left) and press <strong>submit</strong> to see results.</p>
+            <p>Draw a character on the canvas and press <strong>submit</strong> to see results.</p>
             <p>Draw in the center of the canvas and not too big.</p>
           </div>
         </div>

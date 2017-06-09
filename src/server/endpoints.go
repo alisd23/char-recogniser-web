@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"image"
 	"image/png"
 	"io/ioutil"
 	"net/http"
@@ -127,27 +128,51 @@ func (e Endpoints) predict(c *ace.C) {
 	})
 }
 
-// Parameters endpoint
-// Fetches various model parameters (e.g. conv filters)
-func (e Endpoints) parameters(c *ace.C) {
-	var result map[string]interface{}
+type modelValues struct {
+	Top1  float32
+	Top3  float32
+	Conv1 [][]float32
+}
+type filtersResponse struct {
+	Filters []string `json:"filters"`
+}
 
-	fs := e.db.GridFS("training_runs")
-	err := fs.Find(nil).Sort("_id").One(&result)
+const noOfFilters = 32
+const filterSize = 5
+
+// Filters endpoint
+// Fetches the filters in image format for the conv layer 1
+func (e Endpoints) filters(c *ace.C) {
+	var result modelValues
+	err := e.db.C("values").Find(nil).One(&result)
 
 	if err != nil {
-		fmt.Println("[/parameters] ERROR finding GridFS file ", err)
+		fmt.Println("[ERROR] No values found")
+		c.JSON(500, predictResponse{
+			Error: "No values found",
+		})
 		return
 	}
 
-	file, err := fs.OpenId(result["_id"])
+	images := make([]string, noOfFilters)
 
-	if err != nil {
-		fmt.Println("[/parameters] ERROR opening GridFS file", err)
-		return
+	for i, filter := range result.Conv1 {
+		pixels := make([]uint8, filterSize*filterSize)
+		for j, p := range filter {
+			pixels[j] = uint8(p)
+		}
+		img := &image.Gray{
+			Pix:    pixels,
+			Stride: filterSize,
+			Rect:   image.Rect(0, 0, filterSize, filterSize),
+		}
+		buf := new(bytes.Buffer)
+		err = png.Encode(buf, img)
+		imageBytes := buf.Bytes()
+		images[i] = base64.StdEncoding.EncodeToString(imageBytes)
 	}
 
-	var buf bytes.Buffer
-	buf.ReadFrom(file)
-	buf.WriteTo(c.Writer)
+	c.JSON(200, filtersResponse{
+		Filters: images,
+	})
 }

@@ -6,14 +6,23 @@ $toolbar-height: 54px;
 .predict-page {
   flex-grow: 1;
   position: relative;
+  max-width: 100%;
 
   .predict-page-inner {
     position: absolute;
     top: 0; bottom: 0;
     right: 0; left: 0;
     display: flex;
+    padding: 5rem 1.2rem;
     align-items: flex-start;
     justify-content: center;
+
+    @media(max-width: $tablet) {
+      flex-direction: column;
+      position: relative;
+      align-items: center;
+      padding-bottom: 2rem;
+    }
   }
 }
 
@@ -24,6 +33,47 @@ $toolbar-height: 54px;
     height: 404px;
     margin-right: 1.2rem;
     box-shadow: $panel-shadow;
+
+    @media(max-width: $tablet) {
+      margin-right: 0;
+    }
+  }
+}
+
+.canvas-toolbar {
+  display: flex;
+  padding: 0 1.2rem;
+  height: $toolbar-height;
+  justify-content: space-between;
+  align-items: center;
+  margin-right: 1.2rem;
+  background-color: $white;
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+  box-shadow: $panel-shadow;
+
+  @media(max-width: $tablet) {
+    margin-right: 0;
+  }
+
+  .material-icons.clear {
+    color: $red-dark;
+    cursor: pointer;
+    font-size: 32px;
+    transition: all 0.25s ease-out;
+
+    &:hover {
+      color: lighten($red-dark, 10);
+    }
+  }
+
+  .sidebar-title {
+    border-bottom: 2px solid $gray-lighter;
+    text-align: center;
+    margin: 0;
+    font-weight: 300;
+    margin-bottom: 1.2rem;
+    padding-bottom: 0.8rem;
   }
 }
 
@@ -34,6 +84,8 @@ $toolbar-height: 54px;
   min-height: 400px;
   overflow: hidden;
   flex: 0 0 400px;
+  width: 400px;
+  max-width: 100%;
   box-shadow: $panel-shadow;
   position: relative;
   display: flex;
@@ -197,6 +249,23 @@ $toolbar-height: 54px;
     }
   }
 
+  .results-error {
+    position: absolute;
+    top: 0; bottom: 0;
+    right: 0; left: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 2rem;
+    color: $gray-medium;
+
+    .material-icons {
+      color: $red-dark;
+    }
+  }
+
   .no-results {
     position: absolute;
     top: 0; bottom: 0;
@@ -240,39 +309,5 @@ $toolbar-height: 54px;
       font-weight: bold;
       color: $gray-medium;
     }
-  }
-}
-
-.canvas-toolbar {
-  display: flex;
-  padding: 0 1.2rem;
-  height: $toolbar-height;
-  justify-content: space-between;
-  align-items: center;
-  margin-right: 1.2rem;
-  background-color: $white;
-  border-top-left-radius: 4px;
-  border-top-right-radius: 4px;
-  flex: 0 0 210px;
-  box-shadow: $panel-shadow;
-
-  .material-icons.clear {
-    color: $red-dark;
-    cursor: pointer;
-    font-size: 32px;
-    transition: all 0.25s ease-out;
-
-    &:hover {
-      color: lighten($red-dark, 10);
-    }
-  }
-
-  .sidebar-title {
-    border-bottom: 2px solid $gray-lighter;
-    text-align: center;
-    margin: 0;
-    font-weight: 300;
-    margin-bottom: 1.2rem;
-    padding-bottom: 0.8rem;
   }
 }

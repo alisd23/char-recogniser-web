@@ -1,0 +1,36 @@
+@import '../../styles/variables';
+
+.analysis-page {
+  $filter-size: 60px;
+  max-width: 100%;
+  width: 800px;
+  padding: 4rem 2rem;
+  margin: 0 auto;
+
+  .section-header {
+    text-transform: uppercase;
+    color: $gray-dark;
+    text-align: left;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid $gray-light;
+  }
+
+  .loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    margin-top: 100px;
+  }
+
+  .filters {
+    text-align: center;
+    padding-top: 1.5rem;
+  }
+  .filter {
+    width: $filter-size;
+    height: $filter-size;
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+}
