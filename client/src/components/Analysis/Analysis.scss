@@ -1,0 +1,18 @@
+.analysis-page {
+  $activation-size: 70px;
+  max-width: 100%;
+  width: 800px;
+  padding: 4rem 2rem;
+  margin: 0 auto;
+
+  .activations {
+    padding-top: 1.5rem;
+
+    .activation {
+      width: $activation-size;
+      height: $activation-size;
+      margin-right: 1rem;
+      margin-bottom: 1rem;
+    }
+  }
+}

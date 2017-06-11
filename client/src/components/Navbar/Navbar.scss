@@ -27,11 +27,18 @@
     justify-content: center;
     align-items: center;
     border-bottom: 3px solid transparent;
+    text-transform: uppercase;
+    font-size: 14px;
+    font-weight: bold;
 
-    &:hover {
+    &.disabled {
+      color: $gray-medium;
+      cursor: default;
+    }
+    &:hover:not(.disabled) {
       color: $blue-light;
     }
-    &.active {
+    &.active:not(.disabled) {
       border-color: $blue-light;
       color: $blue-light;
     }

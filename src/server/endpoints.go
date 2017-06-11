@@ -5,7 +5,6 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"image"
 	"image/png"
 	"io/ioutil"
 	"net/http"
@@ -50,10 +49,10 @@ type predictRequest struct {
 	Image string
 }
 type predictResponse struct {
-	Error       string        `json:"error"`
-	Image       string        `json:"image"`
-	Predictions []prediction  `json:"predictions"`
-	Activations []interface{} `json:"activations"`
+	Error       string       `json:"error"`
+	Image       string       `json:"image"`
+	Predictions []prediction `json:"predictions"`
+	Activations []string     `json:"activations"`
 }
 type prediction struct {
 	Charcode   int    `json:"charcode"`
@@ -63,8 +62,8 @@ type pythonPredictReq struct {
 	Image []float32 `json:"image"`
 }
 type pythonPredictRes struct {
-	Predictions []prediction  `json:"predictions"`
-	Activations []interface{} `json:"activations"`
+	Predictions []prediction `json:"predictions"`
+	Activations [][]float32  `json:"activations"`
 }
 
 // Predict endpoint
@@ -113,21 +112,31 @@ func (e Endpoints) predict(c *ace.C) {
 		return
 	}
 
-	buf := new(bytes.Buffer)
-	err = png.Encode(buf, normalisedImg)
-	imageBytes := buf.Bytes()
+	for i, p := range pixels {
+		pixels[i] = p * 255
+	}
+	imgString, err := PixelsToBase64(pixels, ImageSize)
 
 	if err != nil {
 		fmt.Println("Image encoding failed", err)
 		c.JSON(500, predictResponse{
 			Error: "Prediction request failed",
 		})
-		return
 	}
+
+	activationImgs := make([]string, noOfFilters)
+
+	for i, filter := range pythonRes.Activations {
+		imgBase64, err := PixelsToBase64(filter, ImageSize)
+		if err == nil {
+			activationImgs[i] = imgBase64
+		}
+	}
+
 	c.JSON(200, predictResponse{
 		Predictions: pythonRes.Predictions,
-		Activations: pythonRes.Activations,
-		Image:       base64.StdEncoding.EncodeToString(imageBytes),
+		Activations: activationImgs,
+		Image:       imgString,
 	})
 }
 
@@ -162,19 +171,10 @@ func (e Endpoints) model(c *ace.C) {
 	images := make([]string, noOfFilters)
 
 	for i, filter := range result.Conv1 {
-		pixels := make([]uint8, filterSize*filterSize)
-		for j, p := range filter {
-			pixels[j] = uint8(p)
+		img, err := PixelsToBase64(filter, filterSize)
+		if err == nil {
+			images[i] = img
 		}
-		img := &image.Gray{
-			Pix:    pixels,
-			Stride: filterSize,
-			Rect:   image.Rect(0, 0, filterSize, filterSize),
-		}
-		buf := new(bytes.Buffer)
-		err = png.Encode(buf, img)
-		imageBytes := buf.Bytes()
-		images[i] = base64.StdEncoding.EncodeToString(imageBytes)
 	}
 
 	c.JSON(200, filtersResponse{

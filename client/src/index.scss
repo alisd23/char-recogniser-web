@@ -23,3 +23,18 @@ h1, h2, h3, h4, h5, h6 {
 *, *::before, *::after {
   box-sizing: border-box;
 }
+
+.section-header {
+  text-transform: uppercase;
+  color: $gray-dark;
+  text-align: left;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid $gray-light;
+
+  span {
+    text-transform: none;
+    font-style: italic;
+    font-size: 12px;
+    margin-left: 0.6rem;
+  }
+}

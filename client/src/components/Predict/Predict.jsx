@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import uuid from 'uuid';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import DigitCanvas from '../DigitCanvas';
 import Results from './Results';
@@ -8,56 +7,16 @@ import './Predict.scss';
 export default class Predict extends Component {
   canvasComponent = null;
 
-  state = {
-    results: null,
-    error: false,
-    loading: false,
-    requestID: null
-  }
-
   onClear = () => {
     this.canvasComponent && this.canvasComponent.clear();
   }
 
   onSubmit = () => {
-    const requestID = uuid.v4();
-    this.setState({
-      error: false,
-      loading: true,
-      requestID
-    });
-    fetch('/api/predict', {
-      method: 'POST',
-      mode: 'cors',
-      body: JSON.stringify({
-        image: this.canvasComponent.canvas.toDataURL("image/png")
-      })
-    })
-      .then(res => res.json())
-      .then(res => {
-        if (res.error) {
-          this.setState({
-            error: true,
-            loading: false
-          })
-        }
-        // Only show results if this is the most recent request
-        if (requestID === this.state.requestID) {
-          console.log(res);
-          this.setState({
-            loading: false,
-            results: {
-              predictions: res.predictions,
-              image: res.image
-            }
-          })
-        }
-      })
-      .catch(err => this.setState({ error: true }));
+    this.props.onSubmit(this.canvasComponent.canvas.toDataURL("image/png"));
   }
 
   getResultsFragment = () => {
-    const { error, results, loading } = this.state;
+    const { error, data, loading } = this.props;
 
     if (error) {
       return (
@@ -83,12 +42,12 @@ export default class Predict extends Component {
       )
     }
 
-    if (results) {
+    if (data) {
       return (
         <Results
           key="results"
-          image={this.state.results.image}
-          predictions={this.state.results.predictions}
+          image={data.image}
+          predictions={data.predictions}
         />
       )
     } else {
@@ -129,7 +88,7 @@ export default class Predict extends Component {
             <div className="canvas">
               <DigitCanvas
                 ref={el => (this.canvasComponent = el)}
-                penColour="black"
+                penColour="black "
                 penRadius={6}
                 size={400}
               />
