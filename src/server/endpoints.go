@@ -50,9 +50,10 @@ type predictRequest struct {
 	Image string
 }
 type predictResponse struct {
-	Error       string       `json:"error"`
-	Image       string       `json:"image"`
-	Predictions []prediction `json:"predictions"`
+	Error       string        `json:"error"`
+	Image       string        `json:"image"`
+	Predictions []prediction  `json:"predictions"`
+	Activations []interface{} `json:"activations"`
 }
 type prediction struct {
 	Charcode   int    `json:"charcode"`
@@ -62,7 +63,8 @@ type pythonPredictReq struct {
 	Image []float32 `json:"image"`
 }
 type pythonPredictRes struct {
-	Predictions []prediction `json:"predictions"`
+	Predictions []prediction  `json:"predictions"`
+	Activations []interface{} `json:"activations"`
 }
 
 // Predict endpoint
@@ -124,6 +126,7 @@ func (e Endpoints) predict(c *ace.C) {
 	}
 	c.JSON(200, predictResponse{
 		Predictions: pythonRes.Predictions,
+		Activations: pythonRes.Activations,
 		Image:       base64.StdEncoding.EncodeToString(imageBytes),
 	})
 }
@@ -135,14 +138,16 @@ type modelValues struct {
 }
 type filtersResponse struct {
 	Filters []string `json:"filters"`
+	Top1    float32  `json:"top1"`
+	Top3    float32  `json:"top3"`
 }
 
 const noOfFilters = 32
 const filterSize = 5
 
-// Filters endpoint
+// Model endpoint
 // Fetches the filters in image format for the conv layer 1
-func (e Endpoints) filters(c *ace.C) {
+func (e Endpoints) model(c *ace.C) {
 	var result modelValues
 	err := e.db.C("values").Find(nil).One(&result)
 
@@ -174,5 +179,7 @@ func (e Endpoints) filters(c *ace.C) {
 
 	c.JSON(200, filtersResponse{
 		Filters: images,
+		Top1:    result.Top1,
+		Top3:    result.Top3,
 	})
 }

@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
 import classnames from 'classnames';
 import Predict from '../Predict';
-import Analysis from '../Analysis';
+import Model from '../Model';
 import Navbar from '../Navbar';
 import './App.scss';
 
 const PAGES = {
   PREDICT: 1,
-  ANALYSIS: 2
+  MODEL: 2
 };
 
 class App extends Component {
@@ -39,9 +39,9 @@ class App extends Component {
           <Predict />
         )
       }
-      case PAGES.ANALYSIS: {
+      case PAGES.MODEL: {
         return (
-          <Analysis />
+          <Model />
         )
       }
       default:
@@ -54,7 +54,7 @@ class App extends Component {
       <div className="app">
         <Navbar>
           {this.getPageLinkFragment(PAGES.PREDICT, 'Predict')}
-          {this.getPageLinkFragment(PAGES.ANALYSIS, 'Analysis')}
+          {this.getPageLinkFragment(PAGES.MODEL, 'Model')}
         </Navbar>
         <div className="app-main">
           {this.getPageFragment()}

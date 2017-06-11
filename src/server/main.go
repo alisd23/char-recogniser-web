@@ -45,7 +45,7 @@ func Start(assetsPath string, port int, pyPort int) {
 
 	// API endpoints
 	router.GET("/test", func(c *ace.C) { fmt.Println("HERE") })
-	router.GET("/api/filters", endpoints.filters)
+	router.GET("/api/model", endpoints.model)
 	router.POST("/api/predict", endpoints.predict)
 
 	// Send index.html on any unmatched url - front-end handles 404

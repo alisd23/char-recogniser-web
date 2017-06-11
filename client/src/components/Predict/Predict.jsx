@@ -43,6 +43,7 @@ export default class Predict extends Component {
         }
         // Only show results if this is the most recent request
         if (requestID === this.state.requestID) {
+          console.log(res);
           this.setState({
             loading: false,
             results: {
@@ -129,7 +130,7 @@ export default class Predict extends Component {
               <DigitCanvas
                 ref={el => (this.canvasComponent = el)}
                 penColour="black"
-                penRadius={7}
+                penRadius={6}
                 size={400}
               />
             </div>
