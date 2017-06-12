@@ -1,7 +1,8 @@
 import React from 'react';
+import Predictions from '../Predictions';
 import './Analysis.scss';
 
-export default ({ activations }) => {
+export default ({ activations, predictions, image }) => {
   return (
     <div className="analysis-page">
       <div className="activations-section">
@@ -16,6 +17,20 @@ export default ({ activations }) => {
                 className="activation"
               />
             ))
+          }
+        </div>
+      </div>
+      <div className="predictions-section">
+        <h3 className="section-header">Predictions</h3>
+        <div className="predictions-wrapper">
+          {
+            predictions && image && (
+              <Predictions
+                key="results"
+                image={image}
+                predictions={predictions}
+              />
+            )
           }
         </div>
       </div>

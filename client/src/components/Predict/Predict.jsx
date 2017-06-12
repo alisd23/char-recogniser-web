@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import DigitCanvas from '../DigitCanvas';
-import Results from './Results';
+import Predictions from '../Predictions';
+import responsive from '../../utils/responsive';
 import './Predict.scss';
 
-export default class Predict extends Component {
+class Predict extends Component {
   canvasComponent = null;
 
   onClear = () => {
@@ -13,6 +14,11 @@ export default class Predict extends Component {
 
   onSubmit = () => {
     this.props.onSubmit(this.canvasComponent.canvas.toDataURL("image/png"));
+  }
+
+  componentDidMount() {
+    // Force component to render - to use container width
+    this.setState({});
   }
 
   getResultsFragment = () => {
@@ -44,7 +50,7 @@ export default class Predict extends Component {
 
     if (data) {
       return (
-        <Results
+        <Predictions
           key="results"
           image={data.image}
           predictions={data.predictions}
@@ -67,8 +73,16 @@ export default class Predict extends Component {
   }
 
   render() {
+    const canvasSize = Math.min(
+      400,
+      (this.wrapper && this.wrapper.offsetWidth) || Infinity
+    );
+
     return (
-      <div className="predict-page">
+      <div
+        className="predict-page"
+        ref={el => (this.wrapper = el)}
+      >
         <div className="predict-page-inner">
           <div className="canvas-wrapper">
             <div className="canvas-toolbar">
@@ -85,12 +99,19 @@ export default class Predict extends Component {
                 submit
               </button>
             </div>
-            <div className="canvas">
+            <div
+              className="canvas"
+              style={{
+                // Canvas border width = 2
+                width: canvasSize + 4,
+                height: canvasSize + 4
+              }}
+            >
               <DigitCanvas
                 ref={el => (this.canvasComponent = el)}
-                penColour="black "
+                penColour="black"
                 penRadius={6}
-                size={400}
+                size={canvasSize}
               />
             </div>
           </div>
@@ -107,3 +128,5 @@ export default class Predict extends Component {
     );
   }
 }
+
+export default responsive(Predict)

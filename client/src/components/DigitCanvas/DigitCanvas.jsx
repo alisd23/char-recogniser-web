@@ -30,6 +30,12 @@ class DigitCanvas extends Component {
     }
   }
 
+  componentDidUpdate(prevProps) {
+    if (prevProps.size !== this.props.size) {
+      this.clear();
+    }
+  }
+
   draw = ({ x, y }) => {
     this.context.beginPath();
 

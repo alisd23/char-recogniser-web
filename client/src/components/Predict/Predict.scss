@@ -1,6 +1,5 @@
 @import '../../styles/variables';
 
-$panel-shadow: -2px 2px 16px rgba($gray-darker, 0.2);
 $toolbar-height: 54px;
 
 .predict-page {
@@ -29,8 +28,6 @@ $toolbar-height: 54px;
 .canvas-wrapper {
   .canvas {
     border: 2px solid $blue-medium;
-    width: 404px;
-    height: 404px;
     margin-right: 1.2rem;
     box-shadow: $panel-shadow;
 
@@ -93,164 +90,6 @@ $toolbar-height: 54px;
 
   @media(max-width: $tablet) {
     flex: 1 0 auto;
-  }
-
-  .show-more {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 0.8rem 1.6rem;
-    text-transform: uppercase;
-    font-size: 12px;
-    font-weight: bold;
-    text-align: center;
-    color: $gray-medium;
-    transition: all 0.25s ease-out;
-    cursor: pointer;
-
-    &:hover {
-      color: $blue-light
-    }
-
-    .material-icons {
-      margin-left: 2px;
-    }
-  }
-
-  .results {
-    display: flex;
-    flex: 1;
-    flex-direction: column;
-
-    .results-header {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      border-bottom: 2px solid $gray-lighter;
-      margin-bottom: 4px;
-      margin-left: 2rem;
-      margin-right: 2rem;
-      padding-top: 1.4rem;
-      padding-bottom: 1.4rem;
-      flex-shrink: 0;
-
-      h2 {
-        margin: 0;
-      }
-
-      img.example {
-        $size: 40px;
-        width: $size;
-        height: $size;
-        margin-left: -$size;
-        border-radius: 4px;
-        border: 1px solid $gray-light;
-        margin-right: 20px;
-      }
-    }
-
-    .predictions {
-      flex: 1;
-      overflow: auto;
-      padding-left: 1.6rem;
-      padding-right: 1.6rem;
-      padding-top: 0.6rem;
-    }
-
-    .prediction-top, .prediction-rest {
-      padding: 14px 0;
-
-      &:not(:last-child) {
-        border-bottom: 1px solid $gray-lighter;
-      }
-
-      .index {
-        color: $gray-medium;
-        margin-right: 20px;
-      }
-    }
-
-    .prediction-top {
-      display: flex;
-      align-items: center;
-
-      &:first-child {
-        color: $blue-light;
-      }
-
-      .character-wrapper, .confidence-wrapper {
-        flex: 1;
-        align-self: stretch;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        flex-direction: column;
-
-        > span:last-child {
-          display: flex;
-          align-items: center;
-        }
-
-        > :first-child {
-          font-size: 12px;
-          color: $gray-medium;
-        }
-
-        > :last-child {
-          font-weight: bold;
-          flex: 1;
-        }
-      }
-
-      .character-wrapper {
-        > :last-child {
-          font-size: 34px;
-        }
-      }
-
-      .confidence-wrapper {
-        > :last-child {
-          font-size: 24px;
-        }
-      }
-    }
-
-    .prediction-rest {
-      display: flex;
-      align-items: center;
-
-      .index {
-        display: inline-block;
-        width: 26px;
-      }
-
-      .character-wrapper {
-        display: flex;
-        flex: 1;
-
-        .keys, .values {
-          span {
-            display: block;
-          }
-        }
-        .keys {
-          color: $gray-dark;
-          font-size: 12px;
-          padding-right: 8px;
-          margin-right: 8px;
-          border-right: 1px solid $gray-light;
-        }
-        .values {
-          font-size: 12px;
-          color: $gray-darker;
-          font-weight: bold;
-        }
-      }
-
-      .confidence-wrapper {
-        font-size: 12px;
-      }
-    }
   }
 
   .results-error {

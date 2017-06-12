@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
+import './Predictions.scss';
 
-export default class Results extends Component {
+export default class Predictions extends Component {
   state = {
     showMore: false
   }
@@ -19,8 +20,10 @@ export default class Results extends Component {
   })
 
   getTop3 = () => {
+    const { predictions } = this.props;
+
     return (
-      this.props.predictions
+      predictions
         .slice(0, 3)
         .map(({ charcode, confidence }, i) => (
           <div
@@ -73,8 +76,8 @@ export default class Results extends Component {
     const { image } = this.props;
 
     return (
-      <div className="results">
-        <div className="results-header">
+      <div className="predictions">
+        <div className="predictions-header">
           <img
             className="example"
             alt="Compressed character"
@@ -82,7 +85,7 @@ export default class Results extends Component {
           />
           <h2>Predictions</h2>
         </div>
-        <div className="predictions">
+        <div className="predictions-list">
           {this.getTop3()}
           {
             !this.state.showMore && (

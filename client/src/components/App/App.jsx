@@ -94,7 +94,11 @@ class App extends Component {
           <Model />
         </Page>
         <Page active={page === PAGES.ANALYSIS}>
-          <Analysis activations={data && data.activations} />
+          <Analysis
+            activations={data && data.activations}
+            predictions={data && data.predictions}
+            image={data && data.image}
+          />
         </Page>
       </div>
     );

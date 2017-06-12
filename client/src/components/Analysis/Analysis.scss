@@ -1,5 +1,7 @@
+@import '../../styles/variables';
+
 .analysis-page {
-  $activation-size: 70px;
+  $activation-size: 80px;
   max-width: 100%;
   width: 800px;
   padding: 4rem 2rem;
@@ -7,12 +9,39 @@
 
   .activations {
     padding-top: 1.5rem;
+    padding-bottom: 3rem;
+    text-align: center;
+
+    @media(max-width: $mobile) {
+      margin: 0 -1rem;
+    }
 
     .activation {
       width: $activation-size;
       height: $activation-size;
-      margin-right: 1rem;
-      margin-bottom: 1rem;
+      margin-right: 0.8rem;
+      margin-left: 0.8rem;
+      margin-bottom: 0.8rem;
+    }
+  }
+
+  .predictions-wrapper {
+    background-color: $white;
+    margin-top: 3rem;
+
+    @media(max-width: $mobile) {
+      margin: 0 -1rem;
+      margin-top: 2rem;
+    }
+
+    .prediction-rest {
+      .character-wrapper, .confidence-wrapper {
+        flex: 1;
+        justify-content: center;
+      }
+      .confidence-wrapper {
+        text-align: center;
+      }
     }
   }
 }
