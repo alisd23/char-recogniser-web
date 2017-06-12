@@ -4,6 +4,7 @@ import (
 	"char-recogniser-web/src/database"
 	"fmt"
 	"net/http"
+	"os"
 	"path/filepath"
 	"strconv"
 
@@ -11,12 +12,22 @@ import (
 	"github.com/rs/cors"
 )
 
-const hostname = "localhost"
+const defaultHostname = "localhost"
 
 // Start starts the server
 func Start(assetsPath string, port int, pyPort int) {
 	router := ace.Default()
-	db, err := database.Connect("localhost:27017")
+
+	var hostname string
+	envHost := os.Getenv("DB_HOST")
+
+	if envHost == "" {
+		hostname = defaultHostname
+	} else {
+		hostname = envHost
+	}
+
+	db, err := database.Connect(hostname + ":27017")
 
 	// Struct containing all endpoint handlers
 	endpoints := Endpoints{
@@ -51,7 +62,7 @@ func Start(assetsPath string, port int, pyPort int) {
 	// Send index.html on any unmatched url - front-end handles 404
 	router.RouteNotFound(endpoints.index)
 
-	url := hostname + ":" + strconv.FormatInt(int64(port), 10)
+	url := "localhost:" + strconv.FormatInt(int64(port), 10)
 
 	handler := c.Handler(router)
 	fmt.Printf("SERVER RUNNING ON %#v\n", url)
