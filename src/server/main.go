@@ -55,14 +55,13 @@ func Start(assetsPath string, port int, pyPort int) {
 	router.Static("/static", http.Dir(assetsPathAbs))
 
 	// API endpoints
-	router.GET("/test", func(c *ace.C) { fmt.Println("HERE") })
 	router.GET("/api/model", endpoints.model)
 	router.POST("/api/predict", endpoints.predict)
 
 	// Send index.html on any unmatched url - front-end handles 404
 	router.RouteNotFound(endpoints.index)
 
-	url := "localhost:" + strconv.FormatInt(int64(port), 10)
+	url := "0.0.0.0:" + strconv.FormatInt(int64(port), 10)
 
 	handler := c.Handler(router)
 	fmt.Printf("SERVER RUNNING ON %#v\n", url)
