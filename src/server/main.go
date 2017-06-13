@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"path/filepath"
 	"strconv"
 
 	"github.com/plimble/ace"
@@ -51,8 +50,7 @@ func Start(assetsPath string, port int, pyPort int) {
 	})
 
 	// Server static files
-	assetsPathAbs, _ := filepath.Abs(filepath.Join(assetsPath, "static"))
-	router.Static("/static", http.Dir(assetsPathAbs))
+	router.Static("/build", http.Dir(assetsPath))
 
 	// API endpoints
 	router.GET("/api/model", endpoints.model)

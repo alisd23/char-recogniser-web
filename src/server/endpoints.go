@@ -98,7 +98,15 @@ func (e Endpoints) predict(c *ace.C) {
 	b := new(bytes.Buffer)
 	json.NewEncoder(b).Encode(pythonBody)
 	pyPredictURL := "http://localhost:" + strconv.Itoa(e.pythonPort) + "/predict"
-	res, _ := http.Post(pyPredictURL, "application/json; charset=utf-8", b)
+	res, err := http.Post(pyPredictURL, "application/json; charset=utf-8", b)
+
+	if err != nil {
+		fmt.Println("Python response failed")
+		c.JSON(500, predictResponse{
+			Error: "Prediction request failed",
+		})
+		return
+	}
 
 	var pythonRes pythonPredictRes
 
