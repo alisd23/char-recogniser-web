@@ -22,6 +22,6 @@ RUN npm run build
 
 WORKDIR /go/src/char-recogniser-web
 
-ENV DB_HOST=mongo
+RUN export DB_HOST=$(route -n | awk '/UG[ \t]/{print $2}')
 
 ENTRYPOINT ["go", "run", "main.go", "start", "-a", "./client/build"]
