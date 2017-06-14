@@ -5,34 +5,46 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"strconv"
 
 	"github.com/plimble/ace"
 	"github.com/rs/cors"
 )
 
-const defaultHostname = "localhost"
+const defaultServerHost = "localhost"
+const defaultDBHost = "localhost"
+const defaultPythonHost = "localhost"
+const defaultPythonPort = "9001"
 
 // Start starts the server
-func Start(assetsPath string, port int, pyPort int) {
+func Start(assetsPath string) {
 	router := ace.Default()
 
-	var hostname string
-	envHost := os.Getenv("DB_HOST")
+	serverHost := os.Getenv("SERVER_HOST")
+	dbHost := os.Getenv("DB_HOST")
+	pythonHost := os.Getenv("PYTHON_HOST")
+	pythonPort := os.Getenv("PYTHON_PORT")
 
-	if envHost == "" {
-		hostname = defaultHostname
-	} else {
-		hostname = envHost
+	if serverHost == "" {
+		serverHost = defaultServerHost
+	}
+	if dbHost == "" {
+		dbHost = defaultDBHost
+	}
+	if pythonHost == "" {
+		pythonHost = defaultPythonHost
+	}
+	if pythonPort == "" {
+		pythonPort = defaultPythonPort
 	}
 
-	db, err := database.Connect(hostname + ":27017")
+	db, err := database.Connect(dbHost + ":27017")
 
 	// Struct containing all endpoint handlers
 	endpoints := Endpoints{
 		db:         db,
 		assetsPath: assetsPath,
-		pythonPort: pyPort,
+		pythonHost: pythonHost,
+		pythonPort: pythonPort,
 	}
 
 	// HACK Set globally sp this is available in other files
@@ -59,7 +71,7 @@ func Start(assetsPath string, port int, pyPort int) {
 	// Send index.html on any unmatched url - front-end handles 404
 	router.RouteNotFound(endpoints.index)
 
-	url := "0.0.0.0:" + strconv.FormatInt(int64(port), 10)
+	url := serverHost + ":9000"
 
 	handler := c.Handler(router)
 	fmt.Printf("SERVER RUNNING ON %#v\n", url)

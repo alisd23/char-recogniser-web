@@ -22,6 +22,6 @@ RUN npm run build
 
 WORKDIR /go/src/char-recogniser-web
 
-ENV DB_HOST=mongo
+ENV DB_HOST=mongo SERVER_HOST=0.0.0.0 PYTHON_HOST=char-recogniser-ml PYTHON_PORT=9001
 
 ENTRYPOINT ["go", "run", "main.go", "start", "-a", "./client/build"]

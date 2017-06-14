@@ -20,8 +20,6 @@ import (
 )
 
 var assetPath string
-var port int
-var pyPort int
 
 // startCmd represents the start command
 var startCmd = &cobra.Command{
@@ -29,7 +27,7 @@ var startCmd = &cobra.Command{
 	Short: "Starts the webserver",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		server.Start(assetPath, port, pyPort)
+		server.Start(assetPath)
 	},
 }
 
@@ -48,12 +46,4 @@ func init() {
 	startCmd.
 		Flags().
 		StringVarP(&assetPath, "assets", "a", "", "Directory of static assets (html, js)")
-
-	startCmd.
-		Flags().
-		IntVarP(&port, "port", "p", 9000, "Server port")
-
-	startCmd.
-		Flags().
-		IntVarP(&pyPort, "pyport", "y", 9001, "Python server port")
 }

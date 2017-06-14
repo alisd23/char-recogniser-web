@@ -9,7 +9,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"path/filepath"
-	"strconv"
 	"strings"
 
 	mgo "gopkg.in/mgo.v2"
@@ -27,7 +26,8 @@ func isValidCharCode(charCode int) bool {
 type Endpoints struct {
 	db         *mgo.Database
 	assetsPath string
-	pythonPort int
+	pythonPort string
+	pythonHost string
 }
 
 // Default endpoint - serves HTML file
@@ -97,7 +97,7 @@ func (e Endpoints) predict(c *ace.C) {
 	}
 	b := new(bytes.Buffer)
 	json.NewEncoder(b).Encode(pythonBody)
-	pyPredictURL := "http://localhost:" + strconv.Itoa(e.pythonPort) + "/predict"
+	pyPredictURL := "http://" + e.pythonHost + ":" + e.pythonPort + "/predict"
 	res, err := http.Post(pyPredictURL, "application/json; charset=utf-8", b)
 
 	if err != nil {
