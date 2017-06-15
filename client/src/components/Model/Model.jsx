@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import './Model.scss';
+import archImage from '../../../assets/convnet-architecture.jpg';
 
 export default class Model extends Component {
   state = {
@@ -54,6 +55,13 @@ export default class Model extends Component {
                     </span>
                   </div>
                 </div>
+              </div>
+              <div className="architecture-section">
+                <h3 className="section-header">Network Architecture</h3>
+                <img
+                  src={archImage}
+                  alt="ConvNet Architecture"
+                />
               </div>
               <div className="filters-section">
                 <h3 className="section-header">Convolutional layer 1 filters</h3>
