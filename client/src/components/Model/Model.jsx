@@ -62,6 +62,10 @@ export default class Model extends Component {
                   src={archImage}
                   alt="ConvNet Architecture"
                 />
+                <div className="edits">
+                  <p><strong>EDIT 1:</strong> Conv Layer 2 now only has 32 filters <i>(So volumes in layer 2 have depth of 32)</i>.</p>
+                  <p><strong>EDIT 2:</strong> Fully connected layer 1 now only produces output of size <code>[1 x 1024]</code>.</p>
+                </div>
               </div>
               <div className="filters-section">
                 <h3 className="section-header">Convolutional layer 1 filters</h3>
